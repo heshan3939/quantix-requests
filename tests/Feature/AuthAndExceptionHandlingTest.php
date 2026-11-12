@@ -75,4 +75,3 @@ class AuthAndExceptionHandlingTest extends TestCase
             ]);
     }
 }
-

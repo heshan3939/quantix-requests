@@ -128,4 +128,3 @@ class ServiceRequestPolicy
         return in_array($request->status, [RequestStatus::Rejected, RequestStatus::Completed], true);
     }
 }
-
