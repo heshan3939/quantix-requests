@@ -8,7 +8,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property string $title
+ * @property string $description
+ * @property string $category
+ * @property string $priority
+ * @property RequestStatus $status
+ * @property int $requester_id
+ * @property int|null $assigned_to
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read User|null $requester
+ * @property-read User|null $assignee
+ */
 class ServiceRequest extends Model
 {
     /** @use HasFactory<ServiceRequestFactory> */

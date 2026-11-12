@@ -26,7 +26,10 @@ class ServiceRequestPolicy
 
         // 3. Manager can view requests from their direct reports
         if ($user->role === UserRole::Manager) {
-            return $request->requester?->manager_id === $user->id;
+            /** @var User|null $requester */
+            $requester = $request->requester;
+
+            return $requester?->manager_id === $user->id;
         }
 
         return false;
@@ -75,7 +78,10 @@ class ServiceRequestPolicy
             return false;
         }
 
-        return $request->requester?->manager_id === $user->id;
+        /** @var User|null $requester */
+        $requester = $request->requester;
+
+        return $requester?->manager_id === $user->id;
     }
 
     /**

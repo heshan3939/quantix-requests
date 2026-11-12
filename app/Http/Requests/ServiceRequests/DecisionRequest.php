@@ -34,10 +34,11 @@ class DecisionRequest extends FormRequest
      */
     public function toStatus(): RequestStatus
     {
-        return match ($this->validated('decision')) {
+        return match ((string) $this->validated('decision')) {
             'approved' => RequestStatus::Approved,
             'rejected' => RequestStatus::Rejected,
             'returned' => RequestStatus::Returned,
+            default => RequestStatus::Rejected,
         };
     }
 }

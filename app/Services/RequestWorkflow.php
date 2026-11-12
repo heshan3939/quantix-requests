@@ -49,7 +49,8 @@ class RequestWorkflow
      */
     public function canTransition(ServiceRequest $request, RequestStatus $to): bool
     {
-        $allowed = self::ALLOWED_TRANSITIONS[$request->status->value] ?? [];
+        $statusKey = $request->status instanceof RequestStatus ? $request->status->value : (string) $request->status;
+        $allowed = self::ALLOWED_TRANSITIONS[$statusKey] ?? [];
 
         return in_array($to, $allowed, true);
     }
@@ -66,11 +67,12 @@ class RequestWorkflow
         ?string $comment = null
     ): ServiceRequest {
         if (! $this->canTransition($request, $to)) {
-            throw new InvalidTransitionException($request->status, $to);
+            $fromStatus = $request->status instanceof RequestStatus ? $request->status : RequestStatus::from((string) $request->status);
+            throw new InvalidTransitionException($fromStatus, $to);
         }
 
         return DB::transaction(function () use ($request, $to, $actor, $comment) {
-            $from = $request->status;
+            $from = $request->status instanceof RequestStatus ? $request->status : RequestStatus::from((string) $request->status);
 
             // 1. Update the status on the model
             $request->status = $to;
@@ -110,16 +112,21 @@ class RequestWorkflow
         // Ensure relationships are available
         $request->loadMissing(['requester.manager', 'assignee']);
 
+        /** @var User|null $requester */
+        $requester = $request->requester;
+
         switch ($to) {
             case RequestStatus::Submitted:
-                if ($request->requester?->manager) {
-                    $request->requester->manager->notify($notification);
+                /** @var User|null $manager */
+                $manager = $requester?->manager;
+                if ($manager) {
+                    $manager->notify($notification);
                 }
                 break;
 
             case RequestStatus::Approved:
-                if ($request->requester) {
-                    $request->requester->notify($notification);
+                if ($requester) {
+                    $requester->notify($notification);
                 }
                 // Notify operations users
                 $operationsUsers = User::where('role', UserRole::Operations->value)->get();
@@ -130,20 +137,22 @@ class RequestWorkflow
 
             case RequestStatus::Rejected:
             case RequestStatus::Returned:
-                if ($request->requester) {
-                    $request->requester->notify($notification);
+                if ($requester) {
+                    $requester->notify($notification);
                 }
                 break;
 
             case RequestStatus::Assigned:
-                if ($request->assignee) {
-                    $request->assignee->notify($notification);
+                /** @var User|null $assignee */
+                $assignee = $request->assignee;
+                if ($assignee) {
+                    $assignee->notify($notification);
                 }
                 break;
 
             case RequestStatus::Completed:
-                if ($request->requester) {
-                    $request->requester->notify($notification);
+                if ($requester) {
+                    $requester->notify($notification);
                 }
                 break;
 

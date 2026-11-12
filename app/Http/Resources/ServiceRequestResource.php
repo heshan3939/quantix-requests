@@ -2,9 +2,14 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\RequestStatus;
+use App\Models\ServiceRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @mixin ServiceRequest
+ */
 class ServiceRequestResource extends JsonResource
 {
     /**
@@ -18,7 +23,7 @@ class ServiceRequestResource extends JsonResource
             'description' => $this->description,
             'category' => $this->category,
             'priority' => $this->priority,
-            'status' => $this->status?->value ?? $this->status,
+            'status' => $this->status instanceof RequestStatus ? $this->status->value : (string) $this->status,
             'requester' => new UserSummaryResource($this->whenLoaded('requester')),
             'assignee' => new UserSummaryResource($this->whenLoaded('assignee')),
             'comments' => RequestCommentResource::collection($this->whenLoaded('comments')),
