@@ -1,63 +1,151 @@
-<<<<<<< HEAD
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Quantix Service Requests API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A robust, production-ready internal service request management API built with **Laravel 12**, **PHP 8.2+**, **MySQL**, and **Laravel Sanctum**.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 1. System Requirements
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- PHP 8.2 or higher (with `pdo_mysql`, `mbstring`, `openssl`, `tokenizer`, `xml` extensions enabled)
+- Composer 2.x
+- MySQL 8.x / MariaDB 10.x
+- Git
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 2. Setup & Installation
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Step 1: Clone the repository
+```bash
+git clone <repository-url>
+cd quantix-requests
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Step 2: Install PHP dependencies
+```bash
+composer install
+```
 
-## Laravel Sponsors
+### Step 3: Environment Configuration
+Copy `.env.example` to `.env`:
+```bash
+cp .env.example .env
+```
+Generate the application key:
+```bash
+php artisan key:generate
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Step 4: Configure MySQL Databases
+Create your application database and test database in MySQL:
+```sql
+CREATE DATABASE quantix_requests CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE quantix_requests_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
 
-### Premium Partners
+Update `.env` with your MySQL credentials:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=quantix_requests
+DB_USERNAME=root
+DB_PASSWORD=your_password_here
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Step 5: Migrate and Seed Database
+Run migrations and load realistic test data with a single command:
+```bash
+php artisan migrate:fresh --seed
+```
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 3. Running the Application & Queue Worker
 
-## Code of Conduct
+### Start Local Web Server
+```bash
+php artisan serve
+```
+The API is available at `http://127.0.0.1:8000`.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Run the Queue Worker
+Notifications for lifecycle state changes implement `ShouldQueue` and use the database driver. Run the worker in a separate terminal:
+```bash
+# In development (automatically reflects code changes)
+php artisan queue:listen
 
-## Security Vulnerabilities
+# In production
+php artisan queue:work --tries=3 --timeout=60
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## 4. Seeded User Credentials
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-=======
-# quantix-requests
->>>>>>> 661d1c097ca98a98303b9b84df9191683e63587e
+All seeded accounts use the password: `password`.
+
+| Role | Name | Email | Password | Reports To |
+| :--- | :--- | :--- | :--- | :--- |
+| **Manager** | Michael Scott | `manager@quantix.test` | `password` | *None* |
+| **Employee** | Jim Halpert | `employee1@quantix.test` | `password` | Michael Scott |
+| **Employee** | Pam Beesly | `employee2@quantix.test` | `password` | Michael Scott |
+| **Operations** | Dwight Schrute | `ops1@quantix.test` | `password` | *None* |
+| **Operations** | Stanley Hudson | `ops2@quantix.test` | `password` | *None* |
+
+---
+
+## 5. Running Tests & Code Quality Tools
+
+### Run Feature & Unit Tests
+Tests run against `quantix_requests_test` using MySQL transactions (`RefreshDatabase`):
+```bash
+php artisan test
+```
+
+### Code Style (Laravel Pint)
+```bash
+vendor/bin/pint --test
+```
+
+### Static Analysis (Larastan Level 5)
+```bash
+vendor/bin/phpstan analyse
+```
+
+---
+
+## 6. API Endpoints Overview
+
+| Method | Endpoint | Description | Authorized Roles |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/login` | Authenticate and obtain Sanctum bearer token | Public |
+| `GET` | `/api/user` | Get authenticated user info | Authenticated |
+| `GET` | `/api/requests` | List requests (scoped by role, with search, filters, pagination) | Authenticated |
+| `POST` | `/api/requests` | Create request (as draft or submitted directly) | Employee / Any authenticated |
+| `GET` | `/api/requests/{id}` | View request with full activity history & comments | Requester, Manager, Operations |
+| `PUT` | `/api/requests/{id}` | Edit request details while `draft` or `returned` | Requester |
+| `POST` | `/api/requests/{id}/submit` | Submit draft or returned request | Requester |
+| `POST` | `/api/requests/{id}/decision` | Approve, reject, or return request (comment required for reject/return) | Direct Manager |
+| `POST` | `/api/requests/{id}/assign` | Assign approved request to operations user | Operations |
+| `POST` | `/api/requests/{id}/status` | Move status to `in_progress` or `completed` | Operations |
+| `POST` | `/api/requests/{id}/comments` | Add comment to request | Allowed Viewers (non-terminal) |
+
+---
+
+## 7. Assumptions Made Where the Brief Was Silent
+
+1. **Delete Behavior**: `nullOnDelete` is used for `manager_id` on users and `assigned_to` on requests to preserve request history if a user is deactivated. `cascadeOnDelete` is applied to comments and activities if a request is permanently pruned.
+2. **Operations Queue Scope**: On `GET /api/requests`, operations users see requests with status `approved`, `assigned`, `in_progress`, and `completed`. Drafts and unapproved submitted requests remain within the employee-manager hierarchy.
+3. **Commenting Authorization**: Anyone who is authorized to view a request (`view` policy) can comment on it, provided the request has not reached a terminal state (`rejected` or `completed`).
+4. **Mandatory Transition Comments**: Rejections and returns require an explanatory comment in `DecisionRequest` to provide actionable feedback to the employee. Approvals and assignments allow optional comments.
+5. **Notification Channels**: Notifications implement `ShouldQueue` and store structured records in the MySQL `notifications` table (`database` channel) while logging outgoing emails via `mail`.
+
+---
+
+## 8. What I Would Do Next (Future Improvements)
+
+1. **File Attachments**: Add support for document/receipt uploads (e.g. S3 / local disk) via a dedicated `media` or `request_attachments` relationship.
+2. **SLA & Deadlines**: Introduce an optional `due_at` or `sla_target_at` column with automated scheduled console commands (`php artisan schedule:run`) warning managers of pending approvals.
+3. **Realtime WebSockets**: Implement Laravel Reverb or Pusher broadcasting on private channels so users receive instant UI updates when a request status transitions.
+4. **Audit Immutability**: Add database-level triggers or an event subscriber forbidding updates or deletes to the `request_activities` table to guarantee compliance-grade immutability.
