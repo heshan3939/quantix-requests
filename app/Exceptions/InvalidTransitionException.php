@@ -20,7 +20,8 @@ class InvalidTransitionException extends Exception
 
     /**
      * Render the exception into an HTTP JSON response.
-     * Keeps response format consistent: status 422 with message and error code.
+     * Keeps response format consistent: status 422 with message and errors shape,
+     * while retaining error and from/to keys for debugging/client inspection.
      */
     public function render(Request $request): JsonResponse
     {
@@ -29,7 +30,9 @@ class InvalidTransitionException extends Exception
             'error' => 'invalid_status_transition',
             'from' => $this->from->value,
             'to' => $this->to->value,
+            'errors' => [
+                'status' => [$this->getMessage()],
+            ],
         ], 422);
     }
 }
-
