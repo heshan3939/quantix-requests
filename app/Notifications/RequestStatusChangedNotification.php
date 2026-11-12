@@ -68,4 +68,3 @@ class RequestStatusChangedNotification extends Notification implements ShouldQue
         ];
     }
 }
-
