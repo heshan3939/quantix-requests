@@ -28,4 +28,3 @@ class ServiceRequestResource extends JsonResource
         ];
     }
 }
-

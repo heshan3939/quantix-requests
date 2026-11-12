@@ -26,7 +26,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/requests/{serviceRequest}/comments', [ServiceRequestController::class, 'comment']);
 });
 
-
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return response()->json([

@@ -247,4 +247,3 @@ class ServiceRequestController extends Controller
             ->setStatusCode(201);
     }
 }
-
